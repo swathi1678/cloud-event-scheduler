@@ -36,6 +36,7 @@ body {
     background-color: #00c6ff;
     cursor: pointer;
     transition: 0.3s;
+    padding: 50px;
   }
   
   button:hover {
