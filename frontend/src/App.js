@@ -71,7 +71,7 @@ function App() {
             <h3>{event.title}</h3>
             <p>{event.date} at {event.time}</p>
             <p>{event.description}</p>
-            <button style={{ marginRight: '50px' }} onClick={() => handleEdit(event)}>Edit</button>
+            <button style={{ marginRight: '20px' }} onClick={() => handleEdit(event)}>Edit</button>
 <button onClick={() => handleDelete(event.id)}>Delete</button>
           </li>
         ))}
