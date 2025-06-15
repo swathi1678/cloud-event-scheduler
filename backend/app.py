@@ -41,6 +41,21 @@ def add_event():
     conn.close()
     return jsonify({"message": "Event added successfully"}), 201
 
+@app.route('/events/<int:event_id>', methods=['PUT'])
+def update_event(event_id):
+    data = request.get_json()
+    conn = sqlite3.connect('events.db')
+    c = conn.cursor()
+    c.execute('''
+        UPDATE events
+        SET title = ?, date = ?, time = ?, description = ?
+        WHERE id = ?
+    ''', (data['title'], data['date'], data['time'], data['description'], event_id))
+    conn.commit()
+    conn.close()
+    return jsonify({"message": "Event updated"})
+
+
 @app.route('/events/<int:event_id>', methods=['DELETE'])
 def delete_event(event_id):
     conn = sqlite3.connect('events.db')
