@@ -1,0 +1,57 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #1f1c2c, #928dab);
+    margin: 0;
+    padding: 0;
+    color: white;
+  }
+  
+  .App {
+    max-width: 600px;
+    margin: auto;
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 2rem;
+  }
+  
+  input, textarea, button {
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+  
+  input, textarea {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+  
+  button {
+    background-color: #00c6ff;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  button:hover {
+    background-color: #0072ff;
+  }
+  
+  .event-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .event-list li {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1rem 0;
+    text-align: left;
+  }
+  
