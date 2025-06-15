@@ -6,7 +6,7 @@ function App() {
   const [form, setForm] = useState({ title: '', date: '', time: '', description: '' });
 
   useEffect(() => {
-    fetch('http://localhost:5000/events')
+    fetch('https://cloud-event-scheduler.onrender.com/events')
       .then(res => res.json())
       .then(data => setEvents(data));
   }, []);
@@ -15,7 +15,7 @@ function App() {
 
   const handleSubmit = e => {
     e.preventDefault();
-    fetch('http://localhost:5000/events', {
+    fetch('https://cloud-event-scheduler.onrender.com/events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
@@ -28,7 +28,7 @@ function App() {
   };
 
   const handleDelete = (id) => {
-    fetch(`http://localhost:5000/events/${id}`, {
+    fetch(`https://cloud-event-scheduler.onrender.com/events/${id}`, {
       method: 'DELETE'
     }).then(() => window.location.reload());
   };
