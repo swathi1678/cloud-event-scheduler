@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import './Dummy.css';
 
 function App() {
   const [events, setEvents] = useState([]);
