@@ -6,7 +6,7 @@ function App() {
   const [events, setEvents] = useState([]);
   const [form, setForm] = useState({ title: '', date: '', time: '', description: '' });
   const [editId, setEditId] = useState(null);
-  const [search, setSearch] = useState([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetch('https://cloud-event-scheduler.onrender.com/events')
@@ -14,42 +14,31 @@ function App() {
       .then(data => {
         setEvents(data);
         requestNotificationPermission();
+        scheduleReminders(data);
       });
-
-    const interval = setInterval(() => {
-      checkForReminders();
-    }, 60000); // every minute
-
-    return () => clearInterval(interval);
-  }, [events]);
+  }, []);
 
   const requestNotificationPermission = () => {
     if ('Notification' in window && Notification.permission !== 'granted') {
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          console.log('✅ Notification permission granted');
-        }
-      });
+      Notification.requestPermission();
     }
   };
 
-  const showNotification = (title, body) => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, {
-        body,
-        icon: 'https://cdn-icons-png.flaticon.com/512/2921/2921222.png', // optional icon
-      });
-    }
-  };
-
-  const checkForReminders = () => {
+  const scheduleReminders = (eventList) => {
     const now = new Date();
-    events.forEach(event => {
+    eventList.forEach(event => {
       const eventTime = new Date(`${event.date}T${event.time}`);
-      const diff = eventTime.getTime() - now.getTime();
+      const diff = eventTime - now - 60000; // 1 minute before
 
-      if (diff > 0 && diff <= 60000) {
-        showNotification(`Reminder: ${event.title}`, `Starts at ${event.time}`);
+      if (diff > 0) {
+        setTimeout(() => {
+          const message = `🔔 Reminder: ${event.title} starts at ${event.time}`;
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(message);
+          } else {
+            alert(message); // fallback if notifications blocked
+          }
+        }, diff);
       }
     });
   };
@@ -67,7 +56,7 @@ function App() {
     const method = editId ? 'PUT' : 'POST';
 
     fetch(url, {
-      method: method,
+      method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     })
@@ -80,7 +69,7 @@ function App() {
         });
         setForm({ title: '', date: '', time: '', description: '' });
         setEditId(null);
-        window.location.reload(); // reload to fetch updated events
+        window.location.reload();
       });
   };
 
