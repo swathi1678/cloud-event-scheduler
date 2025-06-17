@@ -4,7 +4,8 @@ import './dummy.css';
 function App() {
   const [events, setEvents] = useState([]);
   const [form, setForm] = useState({ title: '', date: '', time: '', description: '' });
-  const [editId, setEditId] = useState(null); // Track which event is being edited
+  const [editId, setEditId] = useState(null);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetch('https://cloud-event-scheduler.onrender.com/events')
@@ -18,11 +19,9 @@ function App() {
 
   const handleSubmit = e => {
     e.preventDefault();
-    
     const url = editId
       ? `https://cloud-event-scheduler.onrender.com/events/${editId}`
       : 'https://cloud-event-scheduler.onrender.com/events';
-    
     const method = editId ? 'PUT' : 'POST';
 
     fetch(url, {
@@ -33,7 +32,7 @@ function App() {
       .then(res => res.json())
       .then(() => {
         setForm({ title: '', date: '', time: '', description: '' });
-        setEditId(null); // Reset edit state
+        setEditId(null);
         window.location.reload();
       });
   };
@@ -57,6 +56,7 @@ function App() {
   return (
     <div className="App">
       <h1>📆 Cloud Event Scheduler</h1>
+
       <form onSubmit={handleSubmit}>
         <input name="title" value={form.title} onChange={handleChange} placeholder="Event Title" required />
         <input type="date" name="date" value={form.date} onChange={handleChange} required />
@@ -65,16 +65,30 @@ function App() {
         <button type="submit">{editId ? 'Update Event' : 'Add Event'}</button>
       </form>
 
+      {/* 🔍 Search Input */}
+      <input
+        type="text"
+        placeholder="🔍 Search by title or description..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ padding: '10px', width: '80%', marginTop: '30px', marginBottom: '20px', fontSize: '16px' }}
+      />
+
       <ul className="event-list">
-        {events.map(event => (
-          <li key={event.id}>
-            <h3>{event.title}</h3>
-            <p>{event.date} at {event.time}</p>
-            <p>{event.description}</p>
-            <button style={{ marginRight: '20px' }} onClick={() => handleEdit(event)}>Edit</button>
-<button onClick={() => handleDelete(event.id)}>Delete</button>
-          </li>
-        ))}
+        {events
+          .filter(event =>
+            event.title.toLowerCase().includes(search.toLowerCase()) ||
+            event.description.toLowerCase().includes(search.toLowerCase())
+          )
+          .map(event => (
+            <li key={event.id}>
+              <h3>{event.title}</h3>
+              <p>{event.date} at {event.time}</p>
+              <p>{event.description}</p>
+              <button style={{ marginRight: '50px' }} onClick={() => handleEdit(event)}>Edit</button>
+              <button onClick={() => handleDelete(event.id)}>Delete</button>
+            </li>
+          ))}
       </ul>
     </div>
   );
