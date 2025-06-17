@@ -11,22 +11,23 @@ function App() {
   useEffect(() => {
     fetch('https://cloud-event-scheduler.onrender.com/events')
       .then(res => res.json())
-      .then(data => {
-        setEvents(data);
-        scheduleReminders(data);
-      });
-  }, []);
+      .then(data => setEvents(data));
 
-  const scheduleReminders = (events) => {
+    const interval = setInterval(() => {
+      checkForReminders();
+    }, 60000); // every minute
+
+    return () => clearInterval(interval);
+  }, [events]);
+
+  const checkForReminders = () => {
+    const now = new Date();
     events.forEach(event => {
-      const eventDateTime = new Date(`${event.date}T${event.time}`);
-      const now = new Date();
-      const diff = eventDateTime.getTime() - now.getTime() - 60000; // 1 minute before
+      const eventTime = new Date(`${event.date}T${event.time}`);
+      const diff = eventTime.getTime() - now.getTime();
 
-      if (diff > 0) {
-        setTimeout(() => {
-          alert(`🔔 Reminder: ${event.title} at ${event.time}`);
-        }, diff);
+      if (diff > 0 && diff <= 60000) {
+        alert(`🔔 Reminder: ${event.title} starts at ${event.time}`);
       }
     });
   };
@@ -50,26 +51,24 @@ function App() {
     })
       .then(res => res.json())
       .then(() => {
-        // 🎉 Confetti celebration
         confetti({
           particleCount: 150,
           spread: 80,
           origin: { y: 0.6 },
         });
-
         setForm({ title: '', date: '', time: '', description: '' });
         setEditId(null);
-        window.location.reload();
+        window.location.reload(); // reload to fetch updated events
       });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = id => {
     fetch(`https://cloud-event-scheduler.onrender.com/events/${id}`, {
       method: 'DELETE',
     }).then(() => window.location.reload());
   };
 
-  const handleEdit = (event) => {
+  const handleEdit = event => {
     setForm({
       title: event.title,
       date: event.date,
@@ -91,13 +90,18 @@ function App() {
         <button type="submit">{editId ? 'Update Event' : 'Add Event'}</button>
       </form>
 
-      {/* 🔍 Search Input */}
       <input
         type="text"
         placeholder="🔍 Search by title or description..."
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{ padding: '10px', width: '80%', marginTop: '30px', marginBottom: '20px', fontSize: '16px' }}
+        onChange={e => setSearch(e.target.value)}
+        style={{
+          padding: '10px',
+          width: '80%',
+          marginTop: '30px',
+          marginBottom: '20px',
+          fontSize: '16px',
+        }}
       />
 
       <ul className="event-list">
