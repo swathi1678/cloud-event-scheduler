@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './dummy.css';
+import confetti from 'canvas-confetti';
 
 function App() {
   const [events, setEvents] = useState([]);
@@ -10,8 +11,25 @@ function App() {
   useEffect(() => {
     fetch('https://cloud-event-scheduler.onrender.com/events')
       .then(res => res.json())
-      .then(data => setEvents(data));
+      .then(data => {
+        setEvents(data);
+        scheduleReminders(data);
+      });
   }, []);
+
+  const scheduleReminders = (events) => {
+    events.forEach(event => {
+      const eventDateTime = new Date(`${event.date}T${event.time}`);
+      const now = new Date();
+      const diff = eventDateTime.getTime() - now.getTime() - 60000; // 1 minute before
+
+      if (diff > 0) {
+        setTimeout(() => {
+          alert(`🔔 Reminder: ${event.title} at ${event.time}`);
+        }, diff);
+      }
+    });
+  };
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,6 +37,7 @@ function App() {
 
   const handleSubmit = e => {
     e.preventDefault();
+
     const url = editId
       ? `https://cloud-event-scheduler.onrender.com/events/${editId}`
       : 'https://cloud-event-scheduler.onrender.com/events';
@@ -31,6 +50,13 @@ function App() {
     })
       .then(res => res.json())
       .then(() => {
+        // 🎉 Confetti celebration
+        confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.6 },
+        });
+
         setForm({ title: '', date: '', time: '', description: '' });
         setEditId(null);
         window.location.reload();
