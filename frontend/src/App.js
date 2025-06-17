@@ -6,15 +6,12 @@ function App() {
   const [events, setEvents] = useState([]);
   const [form, setForm] = useState({ title: '', date: '', time: '', description: '' });
   const [editId, setEditId] = useState(null);
-  const [search, setSearch] = useState([]);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetch('https://cloud-event-scheduler.onrender.com/events')
       .then(res => res.json())
-      .then(data => {
-        setEvents(data);
-        requestNotificationPermission();
-      });
+      .then(data => setEvents(data));
 
     const interval = setInterval(() => {
       checkForReminders();
@@ -23,25 +20,6 @@ function App() {
     return () => clearInterval(interval);
   }, [events]);
 
-  const requestNotificationPermission = () => {
-    if ('Notification' in window && Notification.permission !== 'granted') {
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          console.log('✅ Notification permission granted');
-        }
-      });
-    }
-  };
-
-  const showNotification = (title, body) => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, {
-        body,
-        icon: 'https://cdn-icons-png.flaticon.com/512/2921/2921222.png', // optional icon
-      });
-    }
-  };
-
   const checkForReminders = () => {
     const now = new Date();
     events.forEach(event => {
@@ -49,7 +27,7 @@ function App() {
       const diff = eventTime.getTime() - now.getTime();
 
       if (diff > 0 && diff <= 60000) {
-        showNotification(`Reminder: ${event.title}`, `Starts at ${event.time}`);
+        alert(`🔔 Reminder: ${event.title} starts at ${event.time}`);
       }
     });
   };
